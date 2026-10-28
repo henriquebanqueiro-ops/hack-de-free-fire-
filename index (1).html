@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GameDev Toolkit</title>
+<style>
+:root{--bg:#0e0f13;--surface:#16181f;--surface2:#1e2129;--border:#2a2e38;--text:#e6e8ec;--muted:#8a8f9a;--accent:#5b8cff;--accent2:#3d5fbf;--ok:#22c55e;--err:#ef4444;--radius:12px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,sans-serif;min-height:100vh;display:flex}
+button,input,select{font:inherit}button{cursor:pointer}
+.sidebar{width:230px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:20px 12px;display:flex;flex-direction:column;gap:18px}
+.logo{display:flex;align-items:center;gap:12px;padding:5px 8px 20px;border-bottom:1px solid var(--border);font-weight:700}.logo-mark{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white}
+nav{display:grid;gap:6px}.nav-link{padding:12px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14px}.nav-link:hover,.nav-link.active{background:rgba(91,140,255,.12);color:var(--text)}
+#main{flex:1;min-width:0;padding:28px;overflow:auto;max-height:100vh}.page{display:none}.page.active{display:block}.page-header{margin-bottom:22px}.page-header h1{margin:0 0 7px;font-size:28px}.subtitle,.muted{color:var(--muted);font-size:14px;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px}.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;min-width:0}.card h2{font-size:16px;margin:0 0 12px}.card p{font-size:14px;line-height:1.5;color:var(--muted)}.full{margin-top:16px}
+.btn{border:1px solid var(--border);border-radius:8px;padding:10px 14px;background:var(--surface2);color:var(--text);font-size:13px}.btn:hover{border-color:var(--accent)}.primary{background:var(--accent);border-color:var(--accent);color:white}.btn:disabled{opacity:.45;cursor:not-allowed}.file-label{display:inline-block}.input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);margin:5px 0 10px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row .input{flex:1;min-width:160px}.list{list-style:none;padding:0;margin:0}.list li{padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--muted);overflow-wrap:anywhere}.list li:last-child{border:0}
+.status{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}.dot{width:9px;height:9px;border-radius:50%;background:var(--muted)}.dot.ok{background:var(--ok)}.dot.busy{background:var(--accent)}.dot.err{background:var(--err)}
+.tool-card{position:relative;cursor:pointer;transition:.15s}.tool-card.selected{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;background:rgba(91,140,255,.06)}.tool-card .check{float:right;border:1px solid var(--border);border-radius:6px;width:22px;height:22px;text-align:center}.tool-card.selected .check{background:var(--accent);color:white}
+.field{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}.field:last-child{border:0}.field input[type=number],.field input[type=text],.field input[type=color]{max-width:150px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px}.field input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}
+.viewer{display:grid;grid-template-columns:minmax(180px,260px) minmax(0,1fr);gap:14px;min-height:55vh}.file-tree{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px;overflow:auto;max-height:65vh}.file-item{display:block;width:100%;text-align:left;background:transparent;border:0;color:var(--muted);padding:8px;border-radius:6px;font-size:12px;overflow-wrap:anywhere}.file-item:hover,.file-item.active{background:var(--surface2);color:var(--text)}.viewer-main{min-width:0}.toolbar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}.toolbar input{flex:1;min-width:100px}pre{margin:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:15px;overflow:auto;max-height:58vh;white-space:pre-wrap;overflow-wrap:anywhere}code{font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace}
+.toast{position:fixed;bottom:18px;right:18px;max-width:340px;background:var(--surface2);border:1px solid var(--border);padding:13px 16px;border-radius:10px;box-shadow:0 8px 30px #0006;font-size:13px}.hidden{display:none!important}.pill{display:inline-block;padding:4px 8px;border-radius:20px;background:var(--surface2);color:var(--muted);font-size:11px;margin:2px}.report-item{padding:12px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.5}.report-item:last-child{border:0}
+@media(max-width:760px){body{display:block}.sidebar{width:100%;padding:10px;position:sticky;top:0;z-index:5;border-right:0;border-bottom:1px solid var(--border)}.logo{padding:4px 6px 10px}.logo-mark{width:32px;height:32px}nav{display:flex;overflow:auto;gap:4px}.nav-link{white-space:nowrap;padding:9px 10px;font-size:12px}#main{padding:18px 12px;max-height:none}.page-header h1{font-size:24px}.viewer{grid-template-columns:1fr}.file-tree{max-height:180px}.toolbar .btn{flex:1}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="logo"><div class="logo-mark">GD</div><div>GameDev<br>Toolkit</div></div>
+  <nav>
+    <a href="#home" class="nav-link active" data-page="home">Início</a>
+    <a href="#projects" class="nav-link" data-page="projects">Projetos</a>
+    <a href="#tools" class="nav-link" data-page="tools">Ferramentas</a>
+    <a href="#viewer" class="nav-link" data-page="viewer">Código</a>
+    <a href="#report" class="nav-link" data-page="report">Relatório</a>
+  </nav>
+  <p class="muted">Os arquivos são processados localmente no navegador.</p>
+</aside>
+<main id="main">
+<section id="page-home" class="page active">
+<header class="page-header"><h1>Início</h1><p class="subtitle">Importe um ZIP, escolha ferramentas e gere uma cópia modificada do seu projeto.</p></header>
+<div class="grid">
+ <div class="card"><h2>Novo projeto</h2><p>Importe o ZIP do projeto do seu próprio jogo. A pasta original não será alterada no seu dispositivo.</p><label class="btn primary file-label">Importar ZIP<input type="file" id="fileInput" accept=".zip,application/zip" hidden></label></div>
+ <div class="card"><h2>Projetos recentes</h2><ul id="recentProjects" class="list"><li>Nenhum projeto importado.</li></ul></div>
+ <div class="card"><h2>Status</h2><div id="statusBox" class="status"><span class="dot"></span> Aguardando projeto</div><p id="projectSummary" class="muted">Nenhum projeto carregado.</p></div>
+</div>
+<div class="card full"><h2>Histórico desta sessão</h2><ul id="historyList" class="list"><li>Nenhuma atividade.</li></ul></div>
+</section>
+<section id="page-projects" class="page">
+<header class="page-header"><h1>Projetos</h1><p class="subtitle">Projetos importados nesta sessão.</p></header><div id="projectList" class="grid"></div>
+</section>
+<section id="page-tools" class="page">
+<header class="page-header"><h1>Central de ferramentas</h1><p class="subtitle">Selecione ferramentas para gerar módulos de integração para seu próprio jogo.</p></header>
+<div id="toolsGrid" class="grid"></div><div id="toolConfig" class="card full hidden"></div>
+<button id="generateBtn" class="btn primary" disabled style="width:100%;margin-top:16px;padding:14px">Gerar projeto modificado</button>
+</section>
+<section id="page-viewer" class="page">
+<header class="page-header"><h1>Visualizador de código</h1><p class="subtitle">Visualize os arquivos de código encontrados e os módulos gerados.</p></header>
+<div class="viewer"><div id="fileTree" class="file-tree">Importe um projeto para listar arquivos.</div><div class="viewer-main"><div class="toolbar"><input id="searchInput" class="input" placeholder="Buscar no arquivo..."><button id="copyBtn" class="btn">Copiar</button><button id="downloadFileBtn" class="btn">Baixar arquivo</button><button id="diffBtn" class="btn">Ver alterações</button></div><pre><code id="codeView">Selecione um arquivo na lista.</code></pre></div></div>
+</section>
+<section id="page-report" class="page">
+<header class="page-header"><h1>Relatório</h1><p class="subtitle">Resumo das alterações e validações realizadas.</p></header>
+<div id="reportBox" class="card"><p class="muted">Importe um projeto para gerar um relatório.</p></div>
+<div class="row full"><button id="downloadZipBtn" class="btn primary">Baixar projeto completo (.zip)</button><button id="downloadModifiedBtn" class="btn">Baixar apenas modificados (.zip)</button><button id="downloadReportBtn" class="btn">Baixar relatório (.md)</button></div>
+</section>
+</main>
+<div id="toast" class="toast hidden" role="status"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const state={files:[],analysis:null,selected:new Set(),configs:{},modified:{},projectName:'',projects:[],history:[],reportText:'',currentPath:null};
+const TOOLS={
+ esp:{name:'ESP de depuração',icon:'◉',desc:'Indicadores visuais para entidades do seu próprio jogo.',config:{boxes:true,lines:true,distances:true,health:true,teams:true,names:true,maxDistance:200,color:'#5b8cff'},fields:[['boxes','Caixas de delimitação','bool'],['lines','Linhas de referência','bool'],['distances','Mostrar distâncias','bool'],['health','Indicadores de saúde','bool'],['teams','Informações de equipe','bool'],['names','Nomes de entidades','bool'],['maxDistance','Distância máxima (unidades do jogo)','number',10,1000],['color','Cor','color']]},
+ aimbot:{name:'Assistência de mira de teste',icon:'◎',desc:'Configuração para assistência de mira em agentes de teste dentro do projeto.',config:{enabled:true,fov:120,smoothness:.4,maxDistance:150,targets:'TestNPCs'},fields:[['enabled','Ativado','bool'],['fov','Campo de visão (px)','number',20,1000],['smoothness','Suavidade (0–1)','number',0,1],['maxDistance','Distância máxima','number',10,1000],['targets','Grupo de alvos de teste','text']]},
+ movement:{name:'Movimentação de teste',icon:'⌖',desc:'Configurações para marcadores, trajetórias e movimentação em ambiente de desenvolvimento.',config:{teleport:true,waypoints:true,speedTest:true,maxSpeed:20},fields:[['teleport','Teletransporte de teste','bool'],['waypoints','Salvar pontos de referência','bool'],['speedTest','Testes de velocidade','bool'],['maxSpeed','Velocidade máxima de teste','number',1,100]]},
+ debug:{name:'Depuração',icon:'⌘',desc:'Módulos-base para logs e inspeção durante o desenvolvimento.',config:{entityInspect:true,vars:true,logs:true,deps:true},fields:[['entityInspect','Inspeção de entidades','bool'],['vars','Inspeção de variáveis','bool'],['logs','Logs de depuração','bool'],['deps','Análise de dependências','bool']]}
+};
+function toast(msg,type='success'){const t=$('toast');t.textContent=msg;t.className='toast '+(type==='error'?'':'');if(type==='error')t.style.borderColor='var(--err)';else t.style.borderColor='var(--ok)';t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),3500);}
+function status(msg,kind=''){ $('statusBox').innerHTML='<span class="dot '+kind+'"></span>'+escapeHTML(msg);}
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function goPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));document.querySelectorAll('.nav-link').forEach(a=>a.classList.toggle('active',a.dataset.page===name));}
+document.querySelectorAll('.nav-link').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();goPage(a.dataset.page);}));
+function addHistory(msg){state.history.unshift(new Date().toLocaleTimeString()+' — '+msg);state.history=state.history.slice(0,30);$('historyList').innerHTML=state.history.map(x=>'<li>'+escapeHTML(x)+'</li>').join('');}
+function readAsText(file){return file._text!==undefined?Promise.resolve(file._text):file._blob.text().then(t=>(file._text=t));}
+async function importZip(file){
+ if(!window.JSZip)throw Error('A biblioteca ZIP não carregou. Verifique a conexão e recarregue a página.');
+ if(file.size>200*1024*1024)throw Error('O ZIP ultrapassa o limite de 200 MB.');
+ status('Lendo ZIP…','busy');
+ const zip=await JSZip.loadAsync(await file.arrayBuffer());const files=[];
+ for(const [raw,entry] of Object.entries(zip.files)){
+   if(entry.dir)continue;
+   const parts=raw.replace(/\\/g,'/').split('/').filter(x=>x&&x!=='.'&&x!=='..');
+   const path=parts.join('/');if(!path)continue;
+   if(entry._data&&entry._data.uncompressedSize>25*1024*1024)continue;
+   const blob=await entry.async('blob');if(blob.size>25*1024*1024)continue;
+   files.push({path,size:blob.size,_blob:blob});
+ }
+ if(!files.length)throw Error('ZIP vazio ou sem arquivos compatíveis.');
+ state.files=files;state.projectName=file.name.replace(/\.zip$/i,'');state.modified={};state.selected.clear();state.configs={};state.analysis=analyze(files);
+ state.projects.unshift({name:state.projectName,count:files.length,ts:Date.now()});state.projects=state.projects.slice(0,10);
+ addHistory('Projeto importado: '+state.projectName+' ('+files.length+' arquivos)');
+ $('projectSummary').textContent=files.length+' arquivos encontrados. '+state.analysis.summary;
+ status('Projeto carregado','ok');renderRecent();renderProjects();renderTools();renderTree();renderReport();goPage('tools');
+ toast(state.analysis.canGenerate?'Projeto analisado. Selecione as ferramentas.':'Projeto analisado; código-fonte reconhecido insuficiente para gerar módulos compatíveis.',state.analysis.canGenerate?'success':'error');
+}
+function analyze(files){
+ const langs={'.cs':'C#','.js':'JavaScript','.mjs':'JavaScript','.ts':'TypeScript','.gd':'GDScript','.lua':'Lua','.py':'Python','.cpp':'C++','.h':'C++','.hpp':'C++','.java':'Java','.kt':'Kotlin','.go':'Go','.rs':'Rust','.rb':'Ruby'};
+ const counts={};const dataFiles=[];let il2cpp=false,metadata=false;
+ for(const f of files){const p=f.path.toLowerCase();if(p.includes('/data/')||p.startsWith('data/'))dataFiles.push(f.path);const i=p.lastIndexOf('.');const ext=i>=0?p.slice(i):'';if(langs[ext])counts[langs[ext]]=(counts[langs[ext]]||0)+1;if(p.endsWith('libil2cpp.so'))il2cpp=true;if(p.endsWith('global-metadata.dat'))metadata=true;}
+ const languages=Object.entries(counts).sort((a,b)=>b[1]-a[1]);const canGenerate=languages.length>0;
+ let summary=canGenerate?'Código-fonte reconhecido: '+languages.map(x=>x[0]).join(', ')+'.':'Nenhum código-fonte reconhecido pelas extensões suportadas.';
+ if(il2cpp&&metadata)summary+=' O pacote também parece conter arquivos Unity IL2CPP compilados.';
+ return {languages,dataFiles,canGenerate,summary,il2cpp,metadata};
+}
+function renderRecent(){const el=$('recentProjects');el.innerHTML=state.projects.length?state.projects.map(p=>'<li>'+escapeHTML(p.name)+' <span class="pill">'+p.count+' arquivos</span></li>').join(''):'<li>Nenhum projeto importado.</li>';}
+function renderProjects(){const el=$('projectList');el.innerHTML=state.projects.length?state.projects.map(p=>'<div class="card"><h2>'+escapeHTML(p.name)+'</h2><p>'+p.count+' arquivos importados</p><span class="pill">Sessão atual</span></div>').join(''):'<div class="card"><p>Nenhum projeto importado.</p></div>';}
+function renderTools(){
+ const grid=$('toolsGrid');grid.innerHTML='';
+ Object.entries(TOOLS).forEach(([key,t])=>{const card=document.createElement('div');card.className='card tool-card'+(state.selected.has(key)?' selected':'');card.innerHTML='<span class="check">'+(state.selected.has(key)?'✓':'')+'</span><h2>'+t.icon+' '+escapeHTML(t.name)+'</h2><p>'+escapeHTML(t.desc)+'</p>';card.addEventListener('click',()=>{if(state.selected.has(key)){state.selected.delete(key);delete state.configs[key];}else{state.selected.add(key);state.configs[key]=structuredClone(t.config);}renderTools();renderConfig();$('generateBtn').disabled=!state.selected.size||!state.analysis?.canGenerate;});grid.appendChild(card);});
+ renderConfig();$('generateBtn').disabled=!state.selected.size||!state.analysis?.canGenerate;
+}
+function renderConfig(){
+ const el=$('toolConfig');if(!state.selected.size){el.classList.add('hidden');el.innerHTML='';return;}el.classList.remove('hidden');
+ el.innerHTML='<h2>Configurações selecionadas</h2>'+[...state.selected].map(key=>{const t=TOOLS[key],cfg=state.configs[key];return '<div style="padding:12px 0;border-top:1px solid var(--border)"><h3 style="font-size:14px;margin-bottom:8px">'+escapeHTML(t.name)+'</h3>'+t.fields.map(f=>{const [k,label,type,min,max]=f;let input='';if(type==='bool')input='<input type="checkbox" data-tool="'+key+'" data-key="'+k+'" '+(cfg[k]?'checked':'')+'>';else if(type==='color')input='<input type="color" data-tool="'+key+'" data-key="'+k+'" value="'+escapeHTML(cfg[k])+'">';else input='<input type="'+(type==='number'?'number':'text')+'" data-tool="'+key+'" data-key="'+k+'" value="'+escapeHTML(cfg[k])+'" '+(min!==undefined?'min="'+min+'" max="'+max+'" step="'+(k==='smoothness'?.05:1)+'"':'')+'>';return '<label class="field"><span>'+escapeHTML(label)+'</span>'+input+'</label>';}).join('')+'</div>';}).join('');
+ el.querySelectorAll('input').forEach(input=>input.addEventListener('change',()=>{const {tool,key}=input.dataset;let value=input.type==='checkbox'?input.checked:input.type==='number'?Number(input.value):input.value;if(input.type==='number'&&!Number.isFinite(value))return;state.configs[tool][key]=value;}));
+}
+function renderTree(){
+ const el=$('fileTree');el.innerHTML='';const paths=[...state.files.map(f=>f.path),...Object.keys(state.modified)].filter(p=>/\.(cs|js|mjs|ts|gd|lua|py|cpp|h|hpp|java|kt|go|rs|rb|json|txt|md|xml|yaml|yml|html|css)$/i.test(p)).slice(0,1000);
+ if(!paths.length){el.textContent='Nenhum arquivo de código listado.';return;}
+ paths.forEach(path=>{const b=document.createElement('button');b.className='file-item'+(state.currentPath===path?' active':'');b.textContent=path;b.addEventListener('click',()=>selectFile(path));el.appendChild(b);});
+}
+async function selectFile(path){state.currentPath=path;renderTree();const code=$('codeView');code.textContent='Carregando…';try{code.textContent=state.modified[path]?.content??await readAsText(state.files.find(f=>f.path===path));}catch(e){code.textContent='Não foi possível ler este arquivo.';}}
+function makeModule(lang,key,cfg){
+ const title=TOOLS[key].name;const json=JSON.stringify(cfg,null,2);const safeName=key.replace(/[^a-z0-9_]/gi,'_');
+ if(lang==='JavaScript'||lang==='TypeScript')return '// Gerado pelo GameDev Toolkit para integração no jogo próprio.\n// Módulo-base: conecte-o às APIs reais da sua engine.\nexport const config = '+json+';\nexport function init'+safeName[0].toUpperCase()+safeName.slice(1)+'() {\n  console.info("[GameDev Toolkit] '+title+' — módulo inicializado");\n  return { config, status: "template", update() { /* integrar à lógica do jogo */ } };\n}\n';
+ if(lang==='C#')return '// Gerado pelo GameDev Toolkit para integração no jogo próprio.\nusing UnityEngine;\n\npublic class '+safeName[0].toUpperCase()+safeName.slice(1)+'Module : MonoBehaviour\n{\n    public const string ModuleName = "'+title+'";\n    // Configuração para integração com os componentes reais do projeto:\n    // '+json.split('\n').join('\n    // ')+'\n    void Start() => Debug.Log("[GameDev Toolkit] '+title+' — módulo-base carregado");\n    void Update() { /* integrar às APIs reais do jogo */ }\n}\n';
+ if(lang==='GDScript')return '# Gerado pelo GameDev Toolkit para integração no jogo próprio.\nextends Node\n\nvar config = '+json+'\n\nfunc _ready():\n    print("[GameDev Toolkit] '+title+' — módulo-base carregado")\n\nfunc _process(_delta):\n    pass # Integrar às APIs reais do projeto.\n';
+ if(lang==='Lua')return '-- Gerado pelo GameDev Toolkit para integração no jogo próprio.\nlocal M = {}\nM.name = '+JSON.stringify(title)+'\nM.config = '+luaTable(cfg)+'\nfunction M.init()\n  print("[GameDev Toolkit] '..M.name..' — módulo-base carregado")\nend\nfunction M.update(_dt)\n  -- Integrar às APIs reais do jogo.\nend\nreturn M\n';
+ if(lang==='Python')return '# Gerado pelo GameDev Toolkit para integração no jogo próprio.\nCONFIG = '+json+'\n\nclass '+safeName[0].toUpperCase()+safeName.slice(1)+'Module:\n    def __init__(self, config=None):\n        self.config = config or CONFIG\n    def update(self, dt):\n        # Integrar às APIs reais do projeto.\n        pass\n';
+ return '// Módulo-base gerado para '+title+'. Integração específica pendente.\n// Configuração:\n'+json.split('\n').map(x=>'// '+x).join('\n')+'\n';
+}
+function luaTable(obj){return '{\n'+Object.entries(obj).map(([k,v])=>'  '+k+' = '+(typeof v==='string'?JSON.stringify(v):String(v))+',').join('\n')+'\n}';}
+function extFor(lang){return {'C#':'.cs','JavaScript':'.js','TypeScript':'.ts','GDScript':'.gd','Lua':'.lua','Python':'.py','C++':'.cpp','Java':'.java','Kotlin':'.kt','Go':'.go','Rust':'.rs','Ruby':'.rb'}[lang]||'.txt';}
+function generate(){
+ if(!state.analysis?.canGenerate)throw Error('O projeto não contém código-fonte reconhecido.');if(!state.selected.size)throw Error('Selecione pelo menos uma ferramenta.');
+ const lang=state.analysis.languages[0][0],ext=extFor(lang),existing=new Set(state.files.map(f=>f.path)),modified={},created=[];
+ for(const key of state.selected){let path='gdt/'+key+'_module'+ext,n=1;while(existing.has(path)||modified[path])path='gdt/'+key+'_module_'+(n++)+ext;modified[path]={content:makeModule(lang,key,state.configs[key]||TOOLS[key].config),tool:key,action:'created'};created.push(path);}
+ state.modified=modified;state.report={language:lang,created,tools:[...state.selected].map(k=>TOOLS[k].name),timestamp:new Date().toLocaleString(),summary:state.analysis.summary};state.reportText=makeReport();addHistory('Módulos gerados: '+created.length);renderTree();renderReport();status('Geração concluída — revisar relatório','ok');toast('Módulos-base gerados. Confira as limitações no relatório.');goPage('report');
+}
+function makeReport(){
+ if(!state.report)return 'Relatório ainda não gerado.';
+ return '# Relatório — GameDev Toolkit\n\n- Projeto: '+state.projectName+'\n- Data: '+state.report.timestamp+'\n- Linguagem identificada: '+state.report.language+'\n- Ferramentas selecionadas: '+state.report.tools.join(', ')+'\n- Arquivos criados: '+state.report.created.length+'\n\n## Arquivos criados\n'+state.report.created.map(p=>'- `'+p+'`').join('\n')+'\n\n## Análise\n'+state.analysis.summary+'\n\n## Validação\n- Verificação estrutural do ZIP e leitura de arquivos realizada no navegador.\n- Os módulos gerados são templates-base; não foram compilados nem executados.\n- A integração funcional depende das APIs e da arquitetura real do jogo.\n\n## Pendências\n- Conectar cada módulo aos componentes reais do projeto.\n- Executar testes na engine correspondente.\n';
+}
+function renderReport(){
+ const el=$('reportBox');if(!state.files.length){el.innerHTML='<p class="muted">Importe um projeto para gerar um relatório.</p>';return;}
+ const a=state.analysis;let html='<div class="report-item"><strong>Projeto:</strong> '+escapeHTML(state.projectName)+'</div><div class="report-item"><strong>Arquivos lidos:</strong> '+state.files.length+'</div><div class="report-item"><strong>Análise:</strong> '+escapeHTML(a.summary)+'</div><div class="report-item"><strong>Código-fonte detectado:</strong> '+(a.canGenerate?escapeHTML(a.languages.map(x=>x[0]+' ('+x[1]+')').join(', ')):'Não')+'</div><div class="report-item"><strong>Arquivos em pasta data:</strong> '+a.dataFiles.length+'</div>';
+ if(state.report){html+='<div class="report-item"><strong>Ferramentas:</strong> '+state.report.tools.map(escapeHTML).join(', ')+'</div><div class="report-item"><strong>Arquivos criados:</strong><br>'+state.report.created.map(p=>'• '+escapeHTML(p)).join('<br>')+'</div><div class="report-item"><strong>Validação:</strong> Os módulos são templates-base. Não foram compilados nem executados.</div>';}
+ else html+='<div class="report-item">Nenhuma geração realizada nesta sessão.</div>';
+ if(!a.canGenerate)html+='<div class="report-item"><strong>Resultado:</strong> geração desativada porque não foi encontrado código-fonte reconhecido.</div>';
+ el.innerHTML=html;
+}
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
+async function downloadZip(){
+ if(!state.files.length)throw Error('Importe um projeto primeiro.');if(!window.JSZip)throw Error('Biblioteca ZIP indisponível.');
+ const zip=new JSZip();for(const f of state.files){const path=f.path;zip.file(path,state.modified[path]?.content??f._blob);}
+ for(const [path,item] of Object.entries(state.modified))if(!state.files.some(f=>f.path===path))zip.file(path,item.content);
+ downloadBlob(await zip.generateAsync({type:'blob',compression:'DEFLATE'}),(state.projectName||'projeto')+'-modificado.zip');
+}
+async function downloadModified(){if(!Object.keys(state.modified).length)throw Error('Gere os módulos antes de baixar.');const zip=new JSZip();for(const [path,item] of Object.entries(state.modified))zip.file(path,item.content);downloadBlob(await zip.generateAsync({type:'blob'}),'arquivos-modificados.zip');}
+$('fileInput').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{await importZip(f);}catch(err){status('Erro ao importar','err');toast(err.message||'Falha ao importar ZIP.','error');}finally{e.target.value='';}});
+$('generateBtn').addEventListener('click',()=>{try{generate();}catch(e){toast(e.message,'error');}});
+$('copyBtn').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('codeView').textContent);toast('Código copiado.');}catch(e){toast('Não foi possível copiar. Selecione e copie o texto manualmente.','error');}});
+$('downloadFileBtn').addEventListener('click',()=>{if(!state.currentPath){toast('Selecione um arquivo.','error');return;}downloadBlob(new Blob([$('codeView').textContent],{type:'text/plain;charset=utf-8'}),state.currentPath.split('/').pop());});
+$('diffBtn').addEventListener('click',()=>{const path=state.currentPath;if(!path){toast('Selecione um arquivo.','error');return;}const mod=state.modified[path];if(!mod){toast('Este arquivo não foi modificado pelo gerador.','error');return;} $('codeView').textContent='--- NOVO ARQUIVO ---\n'+mod.content;});
+$('searchInput').addEventListener('input',()=>{const q=$('searchInput').value.toLowerCase(),text=$('codeView').textContent;if(!q)return;const idx=text.toLowerCase().indexOf(q);if(idx<0){toast('Texto não encontrado.','error');return;} $('codeView').textContent=text.slice(Math.max(0,idx-100),Math.min(text.length,idx+q.length+300));});
+$('downloadZipBtn').addEventListener('click',()=>downloadZip().catch(e=>toast(e.message,'error')));
+$('downloadModifiedBtn').addEventListener('click',()=>downloadModified().catch(e=>toast(e.message,'error')));
+$('downloadReportBtn').addEventListener('click',()=>{if(!state.files.length){toast('Importe um projeto primeiro.','error');return;}downloadBlob(new Blob([makeReport()],{type:'text/markdown;charset=utf-8'}),'relatorio-gamedev-toolkit.md');});
+renderTools();renderReport();
+})();
+</script>
+</body>
+</html>
